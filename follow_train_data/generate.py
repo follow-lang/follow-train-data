@@ -104,6 +104,8 @@ def get_axiom_train_data(axiom, arg_map={}):
 
 
 def get_thm_train_data(thm, arg_map={}):
+    global total_memory_count, max_memory_size
+
     _, new_conditions, new_diffs = stmt_subs(
         thm["targets"], thm["conditions"], thm["dvs"], arg_map
     )
@@ -145,8 +147,12 @@ def get_thm_train_data(thm, arg_map={}):
             continue
         costs = (state_costs[start_idx], action_costs[start_idx], state_costs[start_idx + 1])
         memories.append((memory, costs))
+        if total_memory_count + len(memories) >= max_memory_size:
+            break
     new_operators = []
     for op_label, op_args in thm["operators"]:
+        if total_memory_count + len(memories) + len(new_operators) >= max_memory_size:
+            break
         new_op_args = stmt_subs(op_args, [], [], arg_map)[0]
         new_operators.append((op_label, new_op_args))
     return memories, new_operators
