@@ -141,6 +141,8 @@ def get_thm_train_data(thm, arg_map={}):
     memories = []
     for start_idx in range(len(new_action_tokens_list)):
         memory = new_state_tokens_list[start_idx] + new_action_tokens_list[start_idx] + new_state_tokens_list[start_idx+1]
+        if len(memory) > max_len:
+            continue
         costs = (state_costs[start_idx], action_costs[start_idx], state_costs[start_idx + 1])
         memories.append((memory, costs))
     new_operators = []
