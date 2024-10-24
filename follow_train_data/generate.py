@@ -23,7 +23,7 @@ n_thread = 32
 n_futures = 32
 total_memory_count = 0 
 max_memory_size = 2*1024*1024
-max_depth = 2
+max_depth = 3 # 初始的thm尝试探索深一些
 min_thm_number = 0
 max_thm_number = 10000
 zip_offset = 0
@@ -271,34 +271,39 @@ def run(start, end, depth, batch_size=128):
     total_memory_count = 0
     file_index = zip_offset
     train_dir = f'databases/train_{file_index}'
-    if os.path.exists(train_dir):
-        shutil.rmtree(train_dir)
-    os.makedirs(train_dir)
+    
+    try:
+        if os.path.exists(train_dir):
+            shutil.rmtree(train_dir)
+        os.makedirs(train_dir)
 
-    for start_idx in range(start, end, batch_size):
-        end_idx = start_idx + batch_size if start_idx + batch_size < end else end
-        generate_thms(start_idx, end_idx, train_dir, depth, file_index) 
+        for start_idx in range(start, end, batch_size):
+            end_idx = start_idx + batch_size if start_idx + batch_size < end else end
+            print(f"Generating theorems from {start_idx} to {end_idx}...")
+            generate_thms(start_idx, end_idx, train_dir, depth, file_index) 
 
-        # 检查文件夹大小
-        if total_memory_count > max_memory_size: 
-            output_zip = train_dir + ".zip" 
+            # 检查文件夹大小
+            if total_memory_count > max_memory_size: 
+                output_zip = train_dir + ".zip" 
+                zip_dataset(train_dir, output_zip)
+                upload(output_zip)
+                shutil.rmtree(train_dir)
+                os.remove(output_zip)
+                file_index += 1
+                train_dir = f'databases/train_{file_index}'
+                total_memory_count = 0
+                if os.path.exists(train_dir):
+                    shutil.rmtree(train_dir)
+                os.makedirs(train_dir)
+        
+        if os.path.exists(train_dir) and os.listdir(train_dir):  # 检查文件夹是否存在且非空
+            output_zip = train_dir + ".zip"
             zip_dataset(train_dir, output_zip)
             upload(output_zip)
             shutil.rmtree(train_dir)
             os.remove(output_zip)
-            file_index += 1
-            train_dir = f'databases/train_{file_index}'
-            total_memory_count = 0
-            if os.path.exists(train_dir):
-                shutil.rmtree(train_dir)
-            os.makedirs(train_dir)
-    
-    if os.path.exists(train_dir) and os.listdir(train_dir):  # 检查文件夹是否存在且非空
-        output_zip = train_dir + ".zip"
-        zip_dataset(train_dir, output_zip)
-        upload(output_zip)
-        shutil.rmtree(train_dir)
-        os.remove(output_zip)
+    except Exception as e:
+        print(f"运行过程中发生错误: {e}")
 
 if __name__ == "__main__":
     # 删除旧文件夹
@@ -346,3 +351,4 @@ if __name__ == "__main__":
         max_thm_number = len(thms)
     
     run(min_thm_number, max_thm_number, depth=max_depth, batch_size=n_futures)
+
