@@ -87,9 +87,8 @@ def get_block_train_data(targets, conditions, dvs, tails=[]):
     for condition in conditions:
         rst.append("-| " + condition)
     if dvs and len(dvs) > 0:
-        rst.append("diff")
         for dv in dvs:
-            rst.append(" ".join(["(", dv[0], ",", dv[1], ")"]))
+            rst.append("diff ".join(["(", dv[0], ",", dv[1], ")"]))
     rst += tails
     return " ".join(rst)
 
