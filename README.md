@@ -8,7 +8,7 @@ This repo will generate data of `Follow-Lang/set.mm.proof` in huggingface.
 - Each line is formatted as: Cost(s) Cost(a) Cost(s')\t s a s' .
 - `a` starts with `<action>` and ends with `</action>`.
 - `Cost(s) = max(Cost(a), 1+Cost(s'))`.
-- The maximum word length is 2048.
+- The maximum word length is 1024.
 - All vocabulary words are listed in `words.txt`.
 - The data was generated with a depth of 2.
 
