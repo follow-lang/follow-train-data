@@ -106,7 +106,7 @@ def get_axiom_train_data(axiom, arg_map={}):
 def get_thm_train_data(thm, arg_map={}):
     global total_memory_count, max_memory_size
 
-    _, new_conditions, new_diffs = stmt_subs(
+    new_targets, new_conditions, new_diffs = stmt_subs(
         thm["targets"], thm["conditions"], thm["dvs"], arg_map
     )
     tails = []
@@ -140,6 +140,15 @@ def get_thm_train_data(thm, arg_map={}):
         new_action_tokens_list.append(tokenizer(action_tokens))
 
     memories = []
+
+    # when max_depth = 0, thm 可能未被调用过，所以需要人造一个样本 
+    if max_depth == 0:
+        rst = get_block_train_data(new_targets, new_conditions, new_diffs)
+        rst = " ".join([rst, "<action>", rst, "</action>", "<qed>"]) # [state, action, <qed>]
+        tokens = tokenizer(rst)
+        sample = (tokens, (state_costs[0], state_costs[0], 0))
+        memories.append(sample)
+
     for start_idx in range(len(new_action_tokens_list)):
         if start_idx == 0:
             memory = ["<start>"] + new_state_tokens_list[start_idx] + new_action_tokens_list[start_idx] + new_state_tokens_list[start_idx+1]
