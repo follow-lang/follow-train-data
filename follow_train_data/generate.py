@@ -141,7 +141,7 @@ def get_thm_train_data(thm, arg_map={}):
 
     memories = []
 
-    # when max_depth = 0, thm 可能未被调用过，所以需要人造一个样本 
+    # 当 max_depth = 0, thm 可能未被调用过，所以需要人造一个样本 
     if max_depth == 0:
         rst = get_block_train_data(new_targets, new_conditions, new_diffs)
         rst = " ".join([rst, "<action>", rst, "</action>", "<qed>"]) # [state, action, <qed>]
