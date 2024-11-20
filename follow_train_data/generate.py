@@ -24,9 +24,9 @@ n_thread = 32
 n_futures = 32
 total_memory_count = 0 
 max_memory_size = 2*1024*1024
-max_depth = 2 
+max_depth = 0 
 min_thm_number = 0
-max_thm_number = 10000
+max_thm_number = -1
 zip_offset = 0
 
 def get_folder_size(folder_path):
@@ -189,15 +189,10 @@ def get_deep_memory(operations, depth=0, max_len=max_len):
                     continue
                 total_memory_count += 1
                 yield memory
-                if total_memory_count >= max_memory_size:
-                    break
-            if total_memory_count >= max_memory_size:
-                break
             next_level_operations.extend(op_operations)
         except Exception as e:
             print(e) 
             continue 
-    
     # BFS, 保证deep完整 
     if len(next_level_operations) > 0 and depth > 0 and total_memory_count < max_memory_size:
         yield from get_deep_memory(next_level_operations, depth - 1, max_len) 
@@ -404,7 +399,7 @@ if __name__ == "__main__":
             print(f"上传失败: {e}")
     
     if max_thm_number < 0:
-        max_thm_number = len(thms)
+        max_thm_number = thms.index("ex-natded5.2") 
     
     run(min_thm_number, max_thm_number, depth=max_depth, batch_size=n_futures)
 
